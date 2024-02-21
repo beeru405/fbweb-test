@@ -20,8 +20,8 @@
             String password = request.getParameter("psw");
             String confirmPassword = request.getParameter("psw-repeat");
 
-            // Assuming a simple validation for password matching
-            if (password.equals(confirmPassword)) {
+            // Simple validation for password matching
+            if (name != null && mobile != null && email != null && password != null && password.equals(confirmPassword)) {
                 // Display a message indicating successful registration
 %>
                 <div class="container">
@@ -29,10 +29,10 @@
                 </div>
 <%
             } else {
-                // Display a message indicating password mismatch
+                // Display a message indicating validation failure
 %>
                 <div class="container">
-                    <p>Passwords do not match. Please try again.</p>
+                    <p>Invalid registration data. Please check your input and try again.</p>
                 </div>
 <%
             }
@@ -52,6 +52,9 @@
         <h1>New user Register for Facebook Lite</h1>
         <p>Please fill in this form to create an account.</p>
         <hr>
+
+        <label for="Name"><b>Enter Name</b></label>
+        <input type="text" placeholder="Enter Full Name" name="Name" id="Name" required>
 
         <!-- ... (existing registration form fields) ... -->
 
