@@ -83,8 +83,8 @@
         <p>Please enter your credentials to log in.</p>
         <hr>
 
-        <label for="username"><b>Username</b></label>
-        <input type="text" placeholder="Enter Username" name="username" id="username" required>
+        <label for="username"><b>Email</b></label>
+        <input type="text" placeholder="Enter Email" name="username" id="username" required>
 
         <label for="loginPassword"><b>Password</b></label>
         <input type="password" placeholder="Enter Password" name="loginPassword" id="loginPassword" required>
