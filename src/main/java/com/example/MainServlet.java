@@ -4,6 +4,8 @@ package com.example;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -16,8 +18,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import org.mindrot.jbcrypt.BCrypt;
 
 @WebServlet("/main")
 public class MainServlet extends HttpServlet {
@@ -48,8 +48,8 @@ public class MainServlet extends HttpServlet {
 
                     // Simple validation for password matching
                     if (name != null && mobile != null && email != null && password != null && password.equals(confirmPassword)) {
-                        // Hash the password before storing it
-                        String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+                        // Hash the password using SHA-256
+                        String hashedPassword = hashPasswordSHA256(password);
 
                         // SQL query to insert data into the 'web' table
                         String sql = "INSERT INTO web (name, mobile, email, password) VALUES (?, ?, ?, ?)";
@@ -77,29 +77,26 @@ public class MainServlet extends HttpServlet {
                     String email = request.getParameter("email");
                     String password = request.getParameter("psw");
 
-                    // SQL query to check if the user exists and verify the password
-                    String sql = "SELECT * FROM web WHERE email = ?";
-                    
+                    // Hash the entered password for comparison
+                    String hashedPassword = hashPasswordSHA256(password);
+
+                    // SQL query to check if the user exists
+                    String sql = "SELECT * FROM web WHERE email = ? AND password = ?";
+
                     try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
                         preparedStatement.setString(1, email);
+                        preparedStatement.setString(2, hashedPassword);
 
                         // Execute the query
                         ResultSet resultSet = preparedStatement.executeQuery();
 
                         if (resultSet.next()) {
-                            // Verify the password using BCrypt
-                            String hashedPassword = resultSet.getString("password");
+                            // User exists, set session attribute to indicate login
+                            HttpSession session = request.getSession();
+                            session.setAttribute("user", email);
 
-                            if (BCrypt.checkpw(password, hashedPassword)) {
-                                // User exists, set session attribute to indicate login
-                                HttpSession session = request.getSession();
-                                session.setAttribute("user", email);
-
-                                // Display a message indicating successful login
-                                out.println("You are logged in!");
-                            } else {
-                                out.println("Invalid email or password.");
-                            }
+                            // Display a message indicating successful login
+                            out.println("You are logged in!");
                         } else {
                             out.println("Invalid email or password.");
                         }
@@ -109,6 +106,26 @@ public class MainServlet extends HttpServlet {
         } catch (ClassNotFoundException | SQLException e) {
             e.printStackTrace();
             out.println("Error: " + e.getMessage());
+        }
+    }
+
+    private String hashPasswordSHA256(String password) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(password.getBytes());
+
+            // Convert the byte array to a hexadecimal representation
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hash) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+
+            return hexString.toString();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error hashing password.");
         }
     }
 }
