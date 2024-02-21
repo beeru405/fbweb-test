@@ -1,7 +1,32 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
-    <title>User Registration Form</title>
+    <title>User Registration and Login Form</title>
+    <style>
+        .container {
+            width: 50%;
+            margin: auto;
+            text-align: center;
+        }
+        .success-message {
+            color: green;
+        }
+        .error-message {
+            color: red;
+        }
+        #login-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border: none;
+            text-decoration: none;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        #loggedin-container {
+            display: none;
+        }
+    </style>
 </head>
 <body>
 
@@ -16,17 +41,16 @@
 
         // Assuming a simple validation for password matching
         if (password.equals(confirmPassword)) {
-            // Display a message indicating successful registration
 %>
-            <div class="container">
-                <h1>Thank you, <%= name %>! Happy Learning</h1>
+            <div class="container" id="loggedin-container">
+                <h1 class="success-message">Thank you, <%= name %>! You are logged in.</h1>
+                <img src="path/to/your/image.jpg" alt="Profile Image">
             </div>
 <%
         } else {
-            // Display a message indicating password mismatch
 %>
             <div class="container">
-                <p>Passwords do not match. Please try again.</p>
+                <p class="error-message">Passwords do not match. Please try again.</p>
             </div>
 <%
         }
@@ -64,9 +88,16 @@
     </div>
 </form>
 
-<div class="container signin">
-    <p>Already have an account? <a href="#">Sign in</a>.</p>
+<div class="container">
+    <a href="#" id="login-btn">Log In</a>
 </div>
+
+<script>
+    // JavaScript to handle showing the logged-in state
+    document.getElementById("login-btn").onclick = function() {
+        document.getElementById("loggedin-container").style.display = "block";
+    };
+</script>
 
 </body>
 </html>
