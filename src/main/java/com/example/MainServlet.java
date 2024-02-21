@@ -37,32 +37,38 @@ public class MainServlet extends HttpServlet {
                 String action = request.getParameter("action");
 
                 if ("register".equalsIgnoreCase(action)) {
-                    // Perform registration
+                    // Process registration
                     String name = request.getParameter("Name");
                     String mobile = request.getParameter("mobile");
                     String email = request.getParameter("email");
                     String password = request.getParameter("psw");
+                    String confirmPassword = request.getParameter("psw-repeat");
 
-                    // SQL query to insert data into the 'web' table
-                    String sql = "INSERT INTO web (name, mobile, email, password) VALUES (?, ?, ?, ?)";
+                    // Simple validation for password matching
+                    if (name != null && mobile != null && email != null && password != null && password.equals(confirmPassword)) {
+                        // SQL query to insert data into the 'web' table
+                        String sql = "INSERT INTO web (name, mobile, email, password) VALUES (?, ?, ?, ?)";
 
-                    try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-                        preparedStatement.setString(1, name);
-                        preparedStatement.setString(2, mobile);
-                        preparedStatement.setString(3, email);
-                        preparedStatement.setString(4, password);
+                        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                            preparedStatement.setString(1, name);
+                            preparedStatement.setString(2, mobile);
+                            preparedStatement.setString(3, email);
+                            preparedStatement.setString(4, password);
 
-                        // Execute the query
-                        int rowsAffected = preparedStatement.executeUpdate();
+                            // Execute the query
+                            int rowsAffected = preparedStatement.executeUpdate();
 
-                        if (rowsAffected > 0) {
-                            out.println("User registered successfully!");
-                        } else {
-                            out.println("Failed to register user.");
+                            if (rowsAffected > 0) {
+                                out.println("User registered successfully!");
+                            } else {
+                                out.println("Failed to register user.");
+                            }
                         }
+                    } else {
+                        out.println("Error: Invalid registration data.");
                     }
                 } else if ("login".equalsIgnoreCase(action)) {
-                    // Perform login
+                    // Process login
                     String email = request.getParameter("email");
                     String password = request.getParameter("psw");
 
