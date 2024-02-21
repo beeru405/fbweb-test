@@ -32,7 +32,7 @@ public class LoginServlet extends HttpServlet {
             Class.forName("com.mysql.cj.jdbc.Driver");
 
             try (Connection connection = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASSWORD)) {
-                String sql = "SELECT * FROM web WHERE email=? AND password=?";
+                String sql = "SELECT * FROM web WHERE LOWER(email) = LOWER(?) AND password=?";
                 try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
                     preparedStatement.setString(1, email);
                     preparedStatement.setString(2, hashPassword(password));
@@ -42,6 +42,7 @@ public class LoginServlet extends HttpServlet {
                             out.println("Login successful! Welcome, " + resultSet.getString("name"));
                         } else {
                             out.println("Invalid email or password. Please try again.");
+                            System.out.println("Login failed for email: " + email);
                         }
                     }
                 }
