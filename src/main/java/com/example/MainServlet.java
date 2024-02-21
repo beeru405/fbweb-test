@@ -1,5 +1,3 @@
-// MainServlet.java
-
 package com.example;
 
 import java.io.IOException;
@@ -18,7 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet("/main")
 public class MainServlet extends HttpServlet {
     // Update these values with your database details
-    private static final String JDBC_URL = "jdbc:mysql://192.168.138.114:3306/myDB";
+    private static final String JDBC_URL = "jdbc:mysql://192.168.138.114:3306/myDB?connectTimeout=5000";
     private static final String JDBC_USER = "mysql";
     private static final String JDBC_PASSWORD = "mysql";
 
