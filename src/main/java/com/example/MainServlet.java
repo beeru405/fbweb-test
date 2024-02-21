@@ -17,6 +17,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.mindrot.jbcrypt.BCrypt;
+
 @WebServlet("/main")
 public class MainServlet extends HttpServlet {
     // Update these values with your database details
@@ -46,6 +48,9 @@ public class MainServlet extends HttpServlet {
 
                     // Simple validation for password matching
                     if (name != null && mobile != null && email != null && password != null && password.equals(confirmPassword)) {
+                        // Hash the password before storing it
+                        String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+
                         // SQL query to insert data into the 'web' table
                         String sql = "INSERT INTO web (name, mobile, email, password) VALUES (?, ?, ?, ?)";
 
@@ -53,7 +58,7 @@ public class MainServlet extends HttpServlet {
                             preparedStatement.setString(1, name);
                             preparedStatement.setString(2, mobile);
                             preparedStatement.setString(3, email);
-                            preparedStatement.setString(4, password);
+                            preparedStatement.setString(4, hashedPassword);
 
                             // Execute the query
                             int rowsAffected = preparedStatement.executeUpdate();
@@ -72,23 +77,29 @@ public class MainServlet extends HttpServlet {
                     String email = request.getParameter("email");
                     String password = request.getParameter("psw");
 
-                    // SQL query to check if the user exists
-                    String sql = "SELECT * FROM web WHERE email = ? AND password = ?";
-
+                    // SQL query to check if the user exists and verify the password
+                    String sql = "SELECT * FROM web WHERE email = ?";
+                    
                     try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
                         preparedStatement.setString(1, email);
-                        preparedStatement.setString(2, password);
 
                         // Execute the query
                         ResultSet resultSet = preparedStatement.executeQuery();
 
                         if (resultSet.next()) {
-                            // User exists, set session attribute to indicate login
-                            HttpSession session = request.getSession();
-                            session.setAttribute("user", email);
+                            // Verify the password using BCrypt
+                            String hashedPassword = resultSet.getString("password");
 
-                            // Display a message indicating successful login
-                            out.println("You are logged in!");
+                            if (BCrypt.checkpw(password, hashedPassword)) {
+                                // User exists, set session attribute to indicate login
+                                HttpSession session = request.getSession();
+                                session.setAttribute("user", email);
+
+                                // Display a message indicating successful login
+                                out.println("You are logged in!");
+                            } else {
+                                out.println("Invalid email or password.");
+                            }
                         } else {
                             out.println("Invalid email or password.");
                         }
