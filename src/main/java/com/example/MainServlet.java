@@ -16,10 +16,16 @@ public class MainServlet extends HttpServlet {
                 String email = request.getParameter("email");
                 String password = request.getParameter("psw");
 
+                // Check if the email already exists in the database
+                if (isEmailRegistered(connection, email)) {
+                    out.println("Email already registered. Please choose another email.");
+                    return;
+                }
+
                 String hashedPassword = hashPassword(password);
 
                 String sql = "INSERT INTO web (name, mobile, email, password) VALUES (?, ?, ?, ?)";
-                
+
                 try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
                     preparedStatement.setString(1, name);
                     preparedStatement.setString(2, mobile);
@@ -39,6 +45,19 @@ public class MainServlet extends HttpServlet {
             e.printStackTrace();
             out.println("Error: " + e.getMessage());
         }
+    }
+
+    private boolean isEmailRegistered(Connection connection, String email) throws SQLException {
+        String checkEmailSql = "SELECT COUNT(*) FROM web WHERE LOWER(email) = LOWER(?)";
+        try (PreparedStatement checkEmailStatement = connection.prepareStatement(checkEmailSql)) {
+            checkEmailStatement.setString(1, email);
+            try (ResultSet resultSet = checkEmailStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt(1) > 0;
+                }
+            }
+        }
+        return false;
     }
 
     private String hashPassword(String password) throws NoSuchAlgorithmException {
