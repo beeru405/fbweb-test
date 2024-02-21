@@ -111,18 +111,22 @@ public class MainServlet extends HttpServlet {
 
     private String hashPasswordSHA256(String password) {
         try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hash = digest.digest(password.getBytes());
+            if (password != null) {
+                MessageDigest digest = MessageDigest.getInstance("SHA-256");
+                byte[] hash = digest.digest(password.getBytes());
 
-            // Convert the byte array to a hexadecimal representation
-            StringBuilder hexString = new StringBuilder();
-            for (byte b : hash) {
-                String hex = Integer.toHexString(0xff & b);
-                if (hex.length() == 1) hexString.append('0');
-                hexString.append(hex);
+                // Convert the byte array to a hexadecimal representation
+                StringBuilder hexString = new StringBuilder();
+                for (byte b : hash) {
+                    String hex = Integer.toHexString(0xff & b);
+                    if (hex.length() == 1) hexString.append('0');
+                    hexString.append(hex);
+                }
+
+                return hexString.toString();
+            } else {
+                throw new IllegalArgumentException("Password cannot be null");
             }
-
-            return hexString.toString();
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             throw new RuntimeException("Error hashing password.");
