@@ -74,29 +74,31 @@ public class MainServlet extends HttpServlet {
                     }
                 } else if ("login".equalsIgnoreCase(action)) {
                     // Process login
-                    String username = request.getParameter("username");
+                    String email = request.getParameter("username");
                     String loginPassword = request.getParameter("loginPassword");
 
-                    // Hash the entered password for comparison
-                    String hashedPassword = hashPasswordSHA256(loginPassword);
-
                     // SQL query to check if the user exists
-                    String sql = "SELECT * FROM web WHERE email = ? AND password = ?";
+                    String sql = "SELECT * FROM web WHERE email = ?";
 
                     try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-                        preparedStatement.setString(1, username);
-                        preparedStatement.setString(2, hashedPassword);
+                        preparedStatement.setString(1, email);
 
                         // Execute the query
                         ResultSet resultSet = preparedStatement.executeQuery();
 
                         if (resultSet.next()) {
-                            // User exists, set session attribute to indicate login
-                            HttpSession session = request.getSession();
-                            session.setAttribute("user", username);
+                            // User found, compare hashed password
+                            String storedHashedPassword = resultSet.getString("password");
+                            if (checkPasswordSHA256(loginPassword, storedHashedPassword)) {
+                                // Passwords match, set session attribute to indicate login
+                                HttpSession session = request.getSession();
+                                session.setAttribute("user", email);
 
-                            // Display a message indicating successful login
-                            out.println("You are logged in!");
+                                // Display a message indicating successful login
+                                out.println("You are logged in!");
+                            } else {
+                                out.println("Invalid email or password.");
+                            }
                         } else {
                             out.println("Invalid email or password.");
                         }
@@ -131,5 +133,11 @@ public class MainServlet extends HttpServlet {
             e.printStackTrace();
             throw new RuntimeException("Error hashing password.");
         }
+    }
+
+    private boolean checkPasswordSHA256(String enteredPassword, String storedHashedPassword) {
+        // Hash the entered password and compare with the stored hashed password
+        String hashedEnteredPassword = hashPasswordSHA256(enteredPassword);
+        return hashedEnteredPassword.equals(storedHashedPassword);
     }
 }
