@@ -39,22 +39,52 @@ public class MainServlet extends HttpServlet {
                 String action = request.getParameter("action");
 
                 if ("register".equalsIgnoreCase(action)) {
-                    // Process registration (similar to your existing code)
-                    // ...
-
-                } else if ("login".equalsIgnoreCase(action)) {
-                    // Process login
+                    // Process registration
+                    String name = request.getParameter("Name");
+                    String mobile = request.getParameter("mobile");
                     String email = request.getParameter("email");
                     String password = request.getParameter("psw");
+                    String confirmPassword = request.getParameter("psw-repeat");
+
+                    // Simple validation for password matching
+                    if (name != null && mobile != null && email != null && password != null && password.equals(confirmPassword)) {
+                        // Hash the password using SHA-256
+                        String hashedPassword = hashPasswordSHA256(password);
+
+                        // SQL query to insert data into the 'web' table
+                        String sql = "INSERT INTO web (name, mobile, email, password) VALUES (?, ?, ?, ?)";
+
+                        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                            preparedStatement.setString(1, name);
+                            preparedStatement.setString(2, mobile);
+                            preparedStatement.setString(3, email);
+                            preparedStatement.setString(4, hashedPassword);
+
+                            // Execute the query
+                            int rowsAffected = preparedStatement.executeUpdate();
+
+                            if (rowsAffected > 0) {
+                                out.println("User registered successfully!");
+                            } else {
+                                out.println("Failed to register user.");
+                            }
+                        }
+                    } else {
+                        out.println("Error: Invalid registration data.");
+                    }
+                } else if ("login".equalsIgnoreCase(action)) {
+                    // Process login
+                    String username = request.getParameter("username");
+                    String loginPassword = request.getParameter("loginPassword");
 
                     // Hash the entered password for comparison
-                    String hashedPassword = hashPasswordSHA256(password);
+                    String hashedPassword = hashPasswordSHA256(loginPassword);
 
-                    // SQL query to check if the user exists and credentials are correct
+                    // SQL query to check if the user exists
                     String sql = "SELECT * FROM web WHERE email = ? AND password = ?";
 
                     try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-                        preparedStatement.setString(1, email);
+                        preparedStatement.setString(1, username);
                         preparedStatement.setString(2, hashedPassword);
 
                         // Execute the query
@@ -63,12 +93,11 @@ public class MainServlet extends HttpServlet {
                         if (resultSet.next()) {
                             // User exists, set session attribute to indicate login
                             HttpSession session = request.getSession();
-                            session.setAttribute("user", email);
+                            session.setAttribute("user", username);
 
                             // Display a message indicating successful login
                             out.println("You are logged in!");
                         } else {
-                            // Display a message indicating invalid email or password
                             out.println("Invalid email or password.");
                         }
                     }
