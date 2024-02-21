@@ -31,7 +31,6 @@
 <body>
 
 <%
-    // Process the form submission
     if ("POST".equalsIgnoreCase(request.getMethod())) {
         String name = request.getParameter("Name");
         String mobile = request.getParameter("mobile");
@@ -39,20 +38,17 @@
         String password = request.getParameter("psw");
         String confirmPassword = request.getParameter("psw-repeat");
 
-        // Assuming a simple validation for password matching
         if (password.equals(confirmPassword)) {
-%>
-            <div class="container" id="loggedin-container">
-                <h1 class="success-message">Thank you, <%= name %>! You are logged in.</h1>
-                <img src="path/to/your/image.jpg" alt="Profile Image">
-            </div>
-<%
+            // Display a message indicating successful registration
+            out.println("<div class=\"container\" id=\"loggedin-container\">");
+            out.println("<h1 class=\"success-message\">Thank you, " + name + "! You are logged in.</h1>");
+            out.println("<img src=\"path/to/your/image.jpg\" alt=\"Profile Image\">");
+            out.println("</div>");
         } else {
-%>
-            <div class="container">
-                <p class="error-message">Passwords do not match. Please try again.</p>
-            </div>
-<%
+            // Display a message indicating password mismatch
+            out.println("<div class=\"container\">");
+            out.println("<p class=\"error-message\">Passwords do not match. Please try again.</p>");
+            out.println("</div>");
         }
     }
 %>
@@ -89,8 +85,21 @@
 </form>
 
 <div class="container">
-    <a href="#" id="login-btn">Log In</a>
+    <h1>Login to Facebook Lite</h1>
+    <form action="<%= request.getContextPath() %>/login" method="post">
+        <label for="email"><b>Email</b></label>
+        <input type="text" placeholder="Enter Email" name="email" required>
+        <br>
+
+        <label for="psw"><b>Password</b></label>
+        <input type="password" placeholder="Enter Password" name="psw" required>
+        <br>
+
+        <button type="submit" class="registerbtn">Login</button>
+    </form>
 </div>
+
+<!-- ... (existing code) ... -->
 
 <script>
     // JavaScript to handle showing the logged-in state
