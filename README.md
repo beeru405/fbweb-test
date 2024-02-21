@@ -29,8 +29,11 @@ Maven installation
 sudo apt install maven -y
 ```
 configure JAVA_HOME
+
 Configure MAVEN_HOME
+
 Go to jenkins>manage Jenkins> Tools> Maven
+
 Go to jenkins>manage Jenkins> Tools> jdk
 
 Tomcat Installation:
