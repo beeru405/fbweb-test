@@ -39,39 +39,9 @@ public class MainServlet extends HttpServlet {
                 String action = request.getParameter("action");
 
                 if ("register".equalsIgnoreCase(action)) {
-                    // Process registration
-                    String name = request.getParameter("Name");
-                    String mobile = request.getParameter("mobile");
-                    String email = request.getParameter("email");
-                    String password = request.getParameter("psw");
-                    String confirmPassword = request.getParameter("psw-repeat");
+                    // Process registration (similar to your existing code)
+                    // ...
 
-                    // Simple validation for password matching
-                    if (name != null && mobile != null && email != null && password != null && password.equals(confirmPassword)) {
-                        // Hash the password using SHA-256
-                        String hashedPassword = hashPasswordSHA256(password);
-
-                        // SQL query to insert data into the 'web' table
-                        String sql = "INSERT INTO web (name, mobile, email, password) VALUES (?, ?, ?, ?)";
-
-                        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-                            preparedStatement.setString(1, name);
-                            preparedStatement.setString(2, mobile);
-                            preparedStatement.setString(3, email);
-                            preparedStatement.setString(4, hashedPassword);
-
-                            // Execute the query
-                            int rowsAffected = preparedStatement.executeUpdate();
-
-                            if (rowsAffected > 0) {
-                                out.println("User registered successfully!");
-                            } else {
-                                out.println("Failed to register user.");
-                            }
-                        }
-                    } else {
-                        out.println("Error: Invalid registration data.");
-                    }
                 } else if ("login".equalsIgnoreCase(action)) {
                     // Process login
                     String email = request.getParameter("email");
@@ -80,7 +50,7 @@ public class MainServlet extends HttpServlet {
                     // Hash the entered password for comparison
                     String hashedPassword = hashPasswordSHA256(password);
 
-                    // SQL query to check if the user exists
+                    // SQL query to check if the user exists and credentials are correct
                     String sql = "SELECT * FROM web WHERE email = ? AND password = ?";
 
                     try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
@@ -98,6 +68,7 @@ public class MainServlet extends HttpServlet {
                             // Display a message indicating successful login
                             out.println("You are logged in!");
                         } else {
+                            // Display a message indicating invalid email or password
                             out.println("Invalid email or password.");
                         }
                     }
